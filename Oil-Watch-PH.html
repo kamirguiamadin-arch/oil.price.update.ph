@@ -1,0 +1,681 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Oil Watch PH</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: dark chart-room dashboard over a fixed night-side Earth. Tall hero lets the globe show, then translucent panels scroll over it. Single dark look by design. */
+:root{
+  --space:#03070b; --panel:rgba(9,21,28,.84); --panelsolid:#0d1a21; --ink:#e6eff2; --mute:#9db3ba; --line:rgba(130,180,200,.22);
+  --sea:#0a1a22; --land:#173039; --landline:#285060; --grid:#12262e; --phland:#4a3d24; --phline:#9a7a3e;
+  --flow:#4cc8dc; --flowsoft:rgba(76,200,220,.14); --crit:#ff6b50; --critsoft:rgba(255,107,80,.14);
+  --warn:#f5ae40; --warnsoft:rgba(245,174,64,.14); --ok:#55c795;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--space);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-block:0 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#earth{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;animation:breathe 7s ease-in-out infinite alternate}
+@keyframes breathe{from{opacity:.84}to{opacity:1}}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);line-height:1;margin:0;text-transform:uppercase;text-wrap:balance}
+h1{font-size:clamp(52px,11vw,104px);font-weight:800;letter-spacing:.01em;text-shadow:0 2px 24px rgba(0,0,0,.7)}
+h2{font-size:clamp(28px,4vw,36px);font-weight:800}
+h3{font-size:22px;font-weight:700;letter-spacing:.02em}
+p{margin:0}
+.hero{min-height:min(62vh,560px);padding-top:max(24px,env(safe-area-inset-top,0px));display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding-bottom:10px}
+.lead{font-size:19px;color:var(--ink);max-width:54ch;text-shadow:0 1px 14px rgba(0,0,0,.85)}
+.asof{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--warn)}
+.art{font-family:var(--mono);font-size:11.5px;color:var(--mute);letter-spacing:.03em;text-shadow:0 1px 8px #000}
+.card{background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:6px;padding:20px;min-width:0}
+.card > h2,.card > h3{margin-bottom:6px}
+.sub{color:var(--mute);margin-bottom:14px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:6px}
+.step{border:1px solid var(--line);border-radius:4px;padding:14px;display:flex;flex-direction:column;gap:6px;background:rgba(255,255,255,.025)}
+.step b{font-family:var(--display);font-size:22px;line-height:1.1;text-transform:uppercase;letter-spacing:.02em}
+.step .n{font-family:var(--mono);font-size:12px;color:var(--warn);letter-spacing:.08em}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.stat{background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:6px;padding:14px 16px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.stat .k{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.stat .v{font-family:var(--display);font-weight:700;font-size:42px;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat .v small{font-family:var(--body);font-size:15px;font-weight:500;color:var(--mute);margin-left:5px}
+.stat .d{font-size:14.5px;color:var(--mute)}
+.stat.hot{border-color:rgba(255,107,80,.55)}
+.stat.hot .v{color:var(--crit)}
+.calc{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px;align-items:center}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font-weight:600}
+.field .row{display:flex;align-items:center;gap:12px}
+.field output{font-family:var(--mono);font-weight:500;min-width:70px;text-align:right}
+select{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:#0a171d;color:var(--ink);width:100%;min-height:44px}
+input[type=range]{flex:1;min-width:0;accent-color:var(--flow);height:32px}
+select:focus-visible,input:focus-visible,button:focus-visible,summary:focus-visible,.pt:focus-visible{outline:2px solid var(--flow);outline-offset:2px}
+.result{background:var(--warnsoft);border:1px solid rgba(245,174,64,.5);border-radius:4px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.result .big{font-family:var(--display);font-weight:800;font-size:48px;line-height:1;font-variant-numeric:tabular-nums;color:var(--warn)}
+.result .line{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:15px;border-top:1px solid var(--line);padding-top:7px}
+.result .line b{font-family:var(--mono);font-weight:500}
+.up{color:var(--crit)} .dn{color:var(--ok)}
+.main{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(0,1fr);gap:14px;align-items:start}
+.bar{display:flex;flex-wrap:wrap;gap:10px 18px;justify-content:space-between;align-items:center;margin-bottom:10px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+button{font:inherit;font-size:13px;font-family:var(--mono);letter-spacing:.03em;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:3px;padding:8px 12px;min-height:40px;cursor:pointer}
+button:hover{border-color:var(--flow)}
+button[aria-pressed="true"]{background:var(--flow);border-color:var(--flow);color:#04141a;font-weight:500}
+svg.map{display:block;width:100%;height:auto;background:var(--sea);border-radius:3px}
+.land{fill:var(--land);stroke:var(--landline);stroke-linejoin:round}
+.land.ph{fill:var(--phland);stroke:var(--phline)}
+.grid line{stroke:var(--grid)}
+.route{fill:none;stroke:var(--flow);stroke-linecap:round;opacity:.5}
+.route.ph{opacity:1}
+.route.bypass{stroke-dasharray:4 3;opacity:.7}
+.ship{fill:#fff}
+.pt{cursor:pointer}
+.pt circle.dot{stroke:#04141a}
+.pt.crit circle.dot{fill:var(--crit)} .pt.elev circle.dot{fill:var(--warn)} .pt.watch circle.dot{fill:var(--flow)}
+.pt.sel circle.dot{stroke:#fff}
+.pt text{fill:var(--ink);font-family:var(--body);font-weight:600;paint-order:stroke;stroke:var(--sea);stroke-linejoin:round}
+.pulse{fill:none;stroke:var(--crit);transform-box:fill-box;transform-origin:center;animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+.off{display:none}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13.5px;color:var(--mute);margin-top:10px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.readout .kind{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.readout h2{margin:4px 0 10px}
+.pill{display:inline-block;font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:2px;color:#04141a;font-weight:500}
+.pill.crit{background:var(--crit)} .pill.elev{background:var(--warn)} .pill.watch{background:var(--flow)}
+.readout .bigno{font-family:var(--display);font-weight:700;font-size:30px;margin-top:12px;line-height:1.1}
+.readout .bigl{font-size:14px;color:var(--mute);margin-bottom:8px}
+.readout p{margin-top:10px}
+.readout p.ph{border-left:3px solid var(--warn);padding-left:11px}
+.readout .src{font-size:13px;color:var(--mute);border-top:1px solid var(--line);padding-top:10px;margin-top:14px}
+.list{display:flex;flex-direction:column;gap:2px;margin-top:14px}
+.list button{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;border-color:transparent;font-family:var(--body);font-size:15px;padding:6px 10px}
+.list button:hover{border-color:var(--line)}
+.list button[aria-current="true"]{border-color:var(--flow);background:var(--flowsoft)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:500;text-align:left;padding:6px 0 8px;border-bottom:1px solid var(--line)}
+td{padding:10px 0;border-bottom:1px solid var(--line);font-size:16px}
+th.r,td.r{text-align:right}
+td.num{font-family:var(--mono);font-size:15px}
+.bars{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.brow{display:grid;grid-template-columns:132px minmax(0,1fr) 52px;gap:10px;align-items:center;font-size:15px}
+.brow .track{position:relative;height:14px;background:rgba(255,255,255,.07);border-radius:2px}
+.brow .fill{position:absolute;inset:0 auto 0 0;background:var(--flow);border-radius:2px}
+.brow.head .fill{background:var(--crit)}
+.brow .tgt{position:absolute;top:-4px;bottom:-4px;width:2px;background:#fff;opacity:.8}
+.brow .val{font-family:var(--mono);font-size:14px;text-align:right}
+.fine{font-size:14px;color:var(--mute);margin-top:12px}
+.tl{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column}
+.tl li{display:grid;grid-template-columns:84px minmax(0,1fr);gap:14px;padding:10px 0;border-top:1px solid var(--line)}
+.tl time{font-family:var(--mono);font-size:12.5px;color:var(--mute);padding-top:2px}
+.tl li.now time{color:var(--crit)}
+ul.plain{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+details{border-top:1px solid var(--line);padding:11px 0}
+details:first-of-type{border-top:0}
+summary{font-weight:600;cursor:pointer}
+details p{margin-top:6px;color:var(--mute);font-size:15px}
+.srcs{margin:8px 0 0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:6px;columns:2;column-gap:32px}
+.srcs a{color:var(--flow)}
+.note{border:1px dashed var(--line);border-radius:4px;padding:11px 14px;font-size:14px;color:var(--mute);margin-top:14px}
+.note b{color:var(--ink);font-weight:600}
+@media (max-width:860px){
+  .main,.two,.calc,.steps{grid-template-columns:minmax(0,1fr)}
+  .tl li{grid-template-columns:72px minmax(0,1fr)}
+  .brow{grid-template-columns:108px minmax(0,1fr) 48px}
+  .srcs{columns:1}
+  .hero{min-height:52vh}
+}
+@media (prefers-reduced-motion:reduce){#earth{animation:none}.ship{display:none}.pulse{animation:none;opacity:.5}}
+</style>
+
+<canvas id="earth" aria-hidden="true"></canvas>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="asof">Updated Oct 16, 2026</span>
+    <h1>Oil Watch PH</h1>
+    <p class="lead">Why fuel, fares and food cost more, and what is happening in the Middle East that is causing it. Explained in plain words.</p>
+    <p class="art">Background is an illustration of Asia at night. Lights are drawn from a list of major cities, not satellite images. Amber glow marks Gulf oil country.</p>
+  </header>
+
+  <section class="card" aria-labelledby="short">
+    <h2 id="short">The short version</h2>
+    <p class="sub">Almost all of the Philippines&rsquo; oil is reported to come from the Middle East. Since late February, fighting there has made that oil harder and more expensive to ship.</p>
+    <div class="steps">
+      <div class="step"><span class="n">STEP 1</span><b>Oil gets blocked or attacked</b><span>Iran declared the Strait of Hormuz closed on Feb 28. This week, drone and missile strikes hit Saudi Arabia&rsquo;s oil company.</span></div>
+      <div class="step"><span class="n">STEP 2</span><b>Fuel and the dollar get pricier</b><span>Oil is bought in dollars. A dollar now costs ₱63.05, up from ₱57–58 before the crisis.</span></div>
+      <div class="step"><span class="n">STEP 3</span><b>Everyday costs follow</b><span>Fares, food delivery and power bills rise. Prices overall are up 7.2% in a year, and transport is up 14.6%.</span></div>
+    </div>
+  </section>
+
+  <section class="stats" aria-label="Key numbers">
+    <div class="stat hot"><span class="k">Diesel today</span><span class="v">₱91.39<small>per liter</small></span><span class="d">Common price in Metro Manila. Down ₱3.01 this week.</span></div>
+    <div class="stat hot"><span class="k">Prices are rising</span><span class="v">7.2%<small>a year</small></span><span class="d">That is inflation. The government wants it at 2–4%.</span></div>
+    <div class="stat"><span class="k">US$1 costs</span><span class="v">₱63.05</span><span class="d">A weak peso makes imported oil more expensive.</span></div>
+    <div class="stat hot"><span class="k">The economy grew</span><span class="v">2.3%<small>Apr–Jun</small></span><span class="d">Slowest since 2009, not counting COVID.</span></div>
+    <div class="stat"><span class="k">Central bank rate</span><span class="v">5.00%</span><span class="d">Raised to slow price increases. More hikes are expected.</span></div>
+    <div class="stat"><span class="k">World oil price</span><span class="v">$106.58<small>a barrel</small></span><span class="d">Brent, Oct 14. Up more than 70% this year.</span></div>
+  </section>
+
+  <section class="card calc" aria-labelledby="calc-h">
+    <div>
+      <h2 id="calc-h">What does fuel cost you?</h2>
+      <p class="sub">Move the sliders to match how much you fill up. Prices vary by station, so treat this as an estimate.</p>
+      <div class="field"><label for="fuel">Fuel type</label>
+        <select id="fuel">
+          <option value="90.69">Regular gas, RON 91 (₱90.69)</option>
+          <option value="97.59">Gas, RON 95 (₱97.59)</option>
+          <option value="101.39">Premium gas, RON 97/100 (₱101.39)</option>
+          <option value="91.39">Diesel (₱91.39)</option>
+        </select></div>
+      <div class="field"><label for="liters">Liters you use in a week</label>
+        <div class="row"><input id="liters" type="range" min="1" max="60" value="10"><output id="litersOut" for="liters">10 L</output></div></div>
+      <div class="field"><label for="chg">What if the price changes by...</label>
+        <div class="row"><input id="chg" type="range" min="-10" max="20" value="5"><output id="chgOut" for="chg">+₱5</output></div></div>
+    </div>
+    <div class="result" aria-live="polite">
+      <span>You spend about</span>
+      <span class="big" id="rMonth">₱0</span>
+      <span>a month on fuel at today&rsquo;s price</span>
+      <div class="line"><span>Per week</span><b id="rWeek">₱0</b></div>
+      <div class="line"><span>Each ₱1 on the price adds</span><b id="rOne">₱0 a month</b></div>
+      <div class="line"><span>With the price change you picked</span><b id="rNew">₱0</b></div>
+      <div class="line"><span>Difference per month</span><b class="delta" id="rDiff">₱0</b></div>
+    </div>
+  </section>
+
+  <section class="main">
+    <div class="card">
+      <h2>Where the oil comes from</h2>
+      <p class="sub">Tap a dot to see what is happening there. Use the buttons to zoom in.</p>
+      <div class="bar">
+        <div class="seg" id="views" role="group" aria-label="Map region">
+          <button data-v="supply" aria-pressed="true">Route to Manila</button>
+          <button data-v="gulf" aria-pressed="false">Gulf</button>
+          <button data-v="ph" aria-pressed="false">Philippines</button>
+          <button data-v="world" aria-pressed="false">World</button>
+        </div>
+        <div class="seg" id="layers" role="group" aria-label="Map layers">
+          <button data-l="routes" aria-pressed="true">Routes</button>
+          <button data-l="chokes" aria-pressed="true">Narrow seas</button>
+          <button data-l="hubs" aria-pressed="true">Ports</button>
+        </div>
+      </div>
+      <svg class="map" id="map" viewBox="560 95 343 130" role="img" aria-label="Map of the oil route from the Gulf to the Philippines">
+        <g class="grid" id="grid"></g>
+        <g id="land"></g>
+        <g id="routes"></g>
+        <g id="hubs"></g>
+        <g id="chokes"></g>
+      </svg>
+      <div class="legend">
+        <span><i style="background:var(--crit)"></i>Danger</span>
+        <span><i style="background:var(--warn)"></i>At risk</span>
+        <span><i style="background:var(--flow)"></i>Watching</span>
+        <span>Bright line: the route to Manila. The moving dots are illustrative, not real ships.</span>
+      </div>
+    </div>
+    <aside class="card readout" id="panel" aria-live="polite"></aside>
+  </section>
+
+  <section class="two">
+    <div class="card">
+      <h2>Pump prices this week</h2>
+      <p class="sub">Oct 13–19, Metro Manila, per liter</p>
+      <table>
+        <thead><tr><th>Fuel</th><th class="r">Common price</th><th class="r">This week</th></tr></thead>
+        <tbody>
+          <tr><td>Diesel</td><td class="r num">₱91.39</td><td class="r num dn">▼ ₱3.01</td></tr>
+          <tr><td>Regular gas (RON 91)</td><td class="r num">₱90.69</td><td class="r num up">▲ ₱1.56</td></tr>
+          <tr><td>Gas (RON 95)</td><td class="r num">₱97.59</td><td class="r num up">▲ ₱1.56</td></tr>
+          <tr><td>Premium (RON 97/100)</td><td class="r num">₱101.39</td><td class="r num up">▲ ₱1.56</td></tr>
+          <tr><td>Kerosene</td><td class="r num">₱130.07</td><td class="r num up">▲ ₱1.77</td></tr>
+        </tbody>
+      </table>
+      <p class="fine">Diesel is cheaper this week because the G7 countries agreed to release 100 million barrels of oil, mostly diesel. Gas is rising because China stopped exporting refined fuel. On Mar 24, diesel was above ₱130 a liter and gas was above ₱100.</p>
+    </div>
+    <div class="card">
+      <h2>What is getting pricier</h2>
+      <p class="sub">How fast prices rose in September, compared with a year earlier</p>
+      <div class="bars" id="bars"></div>
+      <p class="fine">The white mark is 4%, the top of the government&rsquo;s target. Transport prices are rising more than three times faster than that. A government think tank estimates the crisis could push 1.3 to 3.1 million Filipinos into poverty.</p>
+    </div>
+  </section>
+
+  <section class="two">
+    <div class="card">
+      <h2>How we got here</h2>
+      <ol class="tl">
+        <li><time>Feb 28</time><span>US and Israeli strikes on Iran. Iran declares the Strait of Hormuz closed. The Philippines had 55 to 57 days of fuel stock.</span></li>
+        <li><time>Mar 16</time><span>The LTFRB approves a jeepney fare hike as diesel climbs.</span></li>
+        <li><time>Mar 24</time><span>The President declares a national energy emergency, the first country to do so over this war.</span></li>
+        <li><time>Mar 25</time><span>₱20 billion from the Malampaya fund goes to buying fuel.</span></li>
+        <li><time>Apr 13</time><span>Taxes on LPG and kerosene are removed, which lowers their price by about ₱3.36 and ₱5.60 a liter.</span></li>
+        <li><time>May 13</time><span>Rotating brownouts leave nearly 2 million people without power for 2 to 3 hours at a time.</span></li>
+        <li><time>Jun 18</time><span>The central bank (BSP) raises its rate to 4.75% to slow price increases.</span></li>
+        <li><time>Aug 7</time><span>The economy&rsquo;s growth for Apr–Jun is announced at 2.3%. People spent less. Transport groups ask for a ₱1 to ₱2 fare increase and plan a strike on Aug 10–12.</span></li>
+        <li><time>Aug 27</time><span>The BSP raises its rate again, to 5.00%.</span></li>
+        <li class="now"><time>Oct 6</time><span>Prices overall are up 7.2% in a year, more than experts expected.</span></li>
+        <li class="now"><time>Oct 13</time><span>Gas goes up ₱1.56 a liter and diesel goes down ₱3.01. The DOE says October fuel supply is secure.</span></li>
+      </ol>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+      <div class="card">
+        <h2>What to watch next</h2>
+        <ul class="plain">
+          <li><b>BSP meeting this month.</b> One bank expects rate hikes in October and December, taking the rate to 5.50%. Higher rates make loans and credit cards cost more.</li>
+          <li><b>Fuel for November and December.</b> The DOE is checking if more diesel and kerosene shipments are needed.</li>
+          <li><b>The G7 diesel release.</b> About 2.25 million barrels now, 3.75 million in November and 7.5 million after that.</li>
+          <li><b>The Strait of Hormuz.</b> Analysts expect oil prices to jump right away if US–Iran fighting starts again.</li>
+          <li><b>Jeepney and bus fares.</b> Transport groups are still asking for a temporary fare increase.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Words explained</h2>
+        <details><summary>Strait of Hormuz</summary><p>A narrow sea passage between Iran and Oman. About a fifth of the world&rsquo;s oil normally ships through it.</p></details>
+        <details><summary>Inflation</summary><p>How fast prices are rising. 7.2% means the same basket of goods costs 7.2% more than a year ago.</p></details>
+        <details><summary>BSP and the policy rate</summary><p>The BSP is the Philippines&rsquo; central bank. Its policy rate guides what banks charge for loans. Raising it slows spending and eases price rises, but loans cost more.</p></details>
+        <details><summary>Economic growth (GDP)</summary><p>How much bigger the economy got. The government aimed for 3.5–4.5% this year, so 2.3% is slow.</p></details>
+        <details><summary>Brent and WTI</summary><p>The two most quoted world oil prices. Brent is the global one, WTI is the US one. Both are in US dollars per barrel.</p></details>
+        <details><summary>RON 91, 95, 97</summary><p>The octane rating of gasoline. Higher numbers cost more and suit some engines. Check your vehicle&rsquo;s manual.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Sources</h2>
+    <ul class="srcs">
+      <li><a href="https://tribune.net.ph/2026/10/12/pump-prices-split-as-gasoline-rises-diesel-falls-2" target="_blank" rel="noopener">Daily Tribune, pump prices</a></li>
+      <li><a href="https://www.topgear.com.ph/news/industry-news/ph-fuel-price-update-october-13-19-2026-a2619-20261012" target="_blank" rel="noopener">Top Gear PH, fuel update Oct 13–19</a></li>
+      <li><a href="https://tradingeconomics.com/philippines/inflation-cpi/news/589693" target="_blank" rel="noopener">Trading Economics, September inflation</a></li>
+      <li><a href="https://www.gmanetwork.com/news/money/economy/997671/ph-economy-grows-slower-at-2-3-in-q2-2026/story/" target="_blank" rel="noopener">GMA News, Q2 growth</a></li>
+      <li><a href="https://www.pesohub.ph/rates/exchange-rates/usd-to-php-today/" target="_blank" rel="noopener">PesoHub, BSP reference rate</a></li>
+      <li><a href="https://gulfnews.com/business/markets/pesos-new-normal-dollar-could-stay-above-60-bsp-data-1.500591425" target="_blank" rel="noopener">Gulf News, peso and BSP data</a></li>
+      <li><a href="https://tribune.net.ph/2026/10/07/bpi-sees-two-more-bsp-hikes-in-2026" target="_blank" rel="noopener">Daily Tribune, BSP rate outlook</a></li>
+      <li><a href="https://en.wikipedia.org/wiki/2026_Philippine_energy_crisis" target="_blank" rel="noopener">Wikipedia, 2026 Philippine energy crisis</a></li>
+      <li><a href="https://www.philstar.com/headlines/2026/08/04/2546797/transport-groups-set-strike-anew/amp/" target="_blank" rel="noopener">Philstar, transport strike</a></li>
+      <li><a href="https://rigzone.com/news/wire/oil_gains_as_global_supply_risks_mount-14-oct-2026-184852-article" target="_blank" rel="noopener">Rigzone / Bloomberg, Oct 14</a></li>
+      <li><a href="https://ognnews.com/ArticleTA/389936" target="_blank" rel="noopener">Hormuz ship counts (Vortexa via Reuters)</a></li>
+    </ul>
+    <p class="note"><b>Not a live ship tracker.</b> Real-time tanker positions need a paid ship-tracking data service, so the moving dots on the map are illustrative. Narrow-sea flow figures other than Hormuz are approximate pre-crisis numbers. Port details marked &ldquo;general background&rdquo; are not from a news report.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+  var W=1000, NS='http://www.w3.org/2000/svg';
+  function P(lon,lat){return [(lon+180)*W/360,(78-lat)*W/360];}
+  function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+  function peso(n){return '₱'+Math.round(n).toLocaleString('en-PH');}
+
+  /* ---------- fuel calculator ---------- */
+  var fuel=document.getElementById('fuel'), lit=document.getElementById('liters'), chg=document.getElementById('chg');
+  function calc(){
+    var price=parseFloat(fuel.value), l=parseFloat(lit.value), c=parseFloat(chg.value), wk=52/12;
+    var week=price*l, month=week*wk, newMonth=(price+c)*l*wk, diff=newMonth-month;
+    document.getElementById('litersOut').textContent=l+' L';
+    document.getElementById('chgOut').textContent=(c>0?'+':c<0?'−':'')+'₱'+Math.abs(c);
+    document.getElementById('rMonth').textContent=peso(month);
+    document.getElementById('rWeek').textContent=peso(week);
+    document.getElementById('rOne').textContent=peso(l*wk)+' a month';
+    document.getElementById('rNew').textContent=peso(newMonth)+' a month';
+    var d=document.getElementById('rDiff');
+    d.textContent=(diff>0?'+':diff<0?'−':'')+peso(Math.abs(diff));
+    d.className='delta '+(diff>0?'up':diff<0?'dn':'');
+  }
+  ['input','change'].forEach(function(ev){[fuel,lit,chg].forEach(function(e){e.addEventListener(ev,calc);});});
+  calc();
+
+  /* ---------- inflation bars ---------- */
+  var INF=[['Transport',14.6],['Housing & power',8.4],['Overall',7.2,1],['Restaurants & hotels',7.0],['Food & drinks',6.7],['Everything but food & fuel',4.7]];
+  var barsEl=document.getElementById('bars'), MAXV=16;
+  INF.forEach(function(r){
+    var row=document.createElement('div');row.className='brow'+(r[2]?' head':'');
+    row.innerHTML='<span>'+r[0]+'</span><div class="track"><div class="fill" style="width:'+(r[1]/MAXV*100).toFixed(1)+'%"></div><div class="tgt" style="left:'+(4/MAXV*100)+'%"></div></div><span class="val">'+r[1].toFixed(1)+'%</span>';
+    barsEl.appendChild(row);
+  });
+
+  /* ---------- coarse land shapes (lon,lat) ---------- */
+  var LAND=[
+   [[-168,66],[-162,70],[-150,71],[-140,70],[-128,70],[-115,68],[-95,72],[-85,69],[-80,63],[-90,58],[-94,57],[-82,52],[-79,55],[-77,62],[-70,60],[-62,57],[-56,52],[-60,47],[-66,45],[-70,43],[-74,40],[-76,35],[-81,31],[-80,26],[-83,28],[-85,30],[-90,29],[-94,29.5],[-97,26],[-97,22],[-95,18.5],[-90,21],[-87,21],[-88,16],[-84,15],[-83,10],[-79,9],[-80,7.5],[-85,10],[-87,13],[-92,14.5],[-97,16],[-105,20],[-109,26],[-113,31],[-117,32.5],[-121,35],[-124,40],[-124,47],[-128,51],[-134,57],[-140,60],[-148,60],[-153,57],[-160,58],[-165,62]],
+   [[-55,60],[-45,60],[-40,65],[-22,70],[-20,77],[-30,83],[-55,82],[-68,78],[-58,75],[-53,68]],
+   [[-80,8],[-72,12],[-62,10.5],[-52,5],[-50,0],[-45,-2],[-35,-5],[-39,-14],[-41,-22],[-48,-26],[-54,-34],[-58,-38],[-65,-41],[-66,-47],[-69,-52],[-68,-55],[-73,-52],[-74,-45],[-73,-37],[-71,-30],[-70,-18],[-76,-14],[-81,-6],[-80,-1],[-78,2],[-77,8]],
+   [[-9,43],[-2,43.5],[-1,46],[-4,48.5],[2,51],[8,54],[10,57],[14,54],[21,55],[24,59],[30,60],[34,66],[40,67],[44,68],[60,69],[70,73],[80,73],[100,77],[113,74],[130,72],[142,72],[160,70],[170,70],[180,68],[180,65],[170,60],[163,58],[156,51],[156,57],[160,61],[150,59],[142,53],[140,48],[135,43],[130,42],[129,35],[126,35],[126,38],[122,40],[122,37],[119,35],[121,31],[122,29],[117,23],[110,21],[108,21.5],[106,19],[109,12],[105,9],[100,13],[100,8],[103,1.5],[98,8],[98,16],[94,17],[92,22],[88,22],[85,20],[80,15],[80,10],[77,8],[73,16],[72,21],[67,24],[62,25],[57,26],[56,27],[50,30],[48,30],[50,26],[52,24],[56,26],[57,23],[60,22],[55,17],[52,16],[43,13],[39,21],[35,28],[34,31],[36,35],[30,36.5],[27,37],[26,40],[23,37],[21,38],[19,41],[13,45.5],[12,44],[16,41],[18,40],[16,38],[12,42],[8,44],[3,43],[0,39],[-5,36],[-9,37]],
+   [[5,58],[5,62],[14,68],[22,70],[30,70],[28,66],[25,65],[22,63],[18,60],[16,56],[12,56],[10,59]],
+   [[-17,21],[-13,28],[-10,30],[-6,35.8],[10,37],[11,33],[20,31],[25,32],[32,31],[34,28],[38,22],[43,12],[51,12],[49,6],[41,-2],[40,-10],[40,-16],[35,-24],[32,-29],[27,-34],[20,-35],[18,-32],[14,-23],[12,-14],[13,-6],[9,-1],[9,4],[4,6],[-4,5],[-8,4.5],[-13,8],[-17,14]],
+   [[114,-22],[122,-18],[130,-12],[136,-12],[142,-11],[146,-19],[153,-26],[150,-37],[141,-38],[135,-35],[130,-31],[115,-34],[114,-26]],
+   [[-5,50],[1,51],[2,53],[-2,56],[-4,58.5],[-6,57],[-3,54],[-5,52]],
+   [[130,31],[135,34],[140,36],[142,40],[141,45],[145,43],[140,41],[137,37],[132,35]],
+   [[95,5],[104,-2],[106,-6],[101,-3]],
+   [[109,1],[117,7],[119,1],[116,-4],[110,-3]],
+   [[105,-6],[114,-8],[106,-7.5]],
+   [[131,-1],[141,-3],[150,-10],[141,-9],[135,-4]],
+   {ph:1,p:[[120.4,18.5],[122.2,18.6],[122.4,16.3],[121.5,14.5],[122.4,14.0],[124.1,13.0],[123.0,13.2],[121.3,13.6],[120.6,13.9],[120.1,15.5]]},
+   {ph:1,p:[[120.3,13.4],[121.5,13.5],[121.4,12.3],[120.9,12.2]]},
+   {ph:1,p:[[122,11.5],[123.2,11.7],[125.2,12.5],[125.5,10.5],[124,10],[123.5,9.5],[122.5,10],[122,11]]},
+   {ph:1,p:[[122,7.8],[123.5,8.6],[125,9.6],[126.2,8.6],[126.5,6.8],[125.3,5.7],[124.1,6.2],[123.7,7.5],[122.1,7]]},
+   {ph:1,p:[[117.2,8.4],[119.5,11.4],[119.2,10.6],[117.5,8.2]]}
+  ];
+  var gridG=document.getElementById('grid'), landG=document.getElementById('land');
+  var lon,lat,a,b;
+  for(lon=-150;lon<=180;lon+=30){a=P(lon,78);b=P(lon,-58);el('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],'stroke-width':.5},gridG);}
+  for(lat=60;lat>=-30;lat-=30){a=P(-180,lat);b=P(180,lat);el('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],'stroke-width':.5},gridG);}
+  var landEls=[];
+  LAND.forEach(function(poly){
+    var ph=!Array.isArray(poly), pts=ph?poly.p:poly;
+    var d='M'+pts.map(function(p){var q=P(p[0],p[1]);return q[0].toFixed(1)+','+q[1].toFixed(1);}).join('L')+'Z';
+    landEls.push(el('path',{d:d,'class':'land'+(ph?' ph':''),'stroke-width':.6},landG));
+  });
+
+  /* ---------- data ---------- */
+  var CH=[
+   {id:'hormuz',n:'Strait of Hormuz',kind:'Narrow sea passage',lon:56.4,lat:26.5,r:7.5,st:'crit',stl:'Danger',
+    big:'About 20 million barrels a day',bigl:'Normally flows through here, about a fifth of the world’s oil',
+    txt:'Iran declared the strait closed on Feb 28, and attacks on tankers got worse again this week. On Mar 1, only 4 crude tankers passed in a day, compared with about 24 a day before the war.',
+    ph:'The Philippines is reported to get almost all of its oil from the Middle East, so this is the biggest risk behind Philippine pump prices. By Mar 24, diesel was above ₱130 a liter and gas above ₱100.',
+    src:'Bloomberg via Rigzone (Oct 14); Vortexa via Reuters (Mar 3); Wikipedia'},
+   {id:'malacca',n:'Strait of Malacca',kind:'Narrow sea passage',lon:100.5,lat:3.2,r:6.5,st:'watch',stl:'Watching',
+    big:'About 23–24 million barrels a day',bigl:'Approximate flow before the crisis. It is the busiest oil passage.',
+    txt:'Gulf oil headed to East Asia passes through here. Shipping costs from the Middle East to China are near their highest ever, so oil costs more by the time it lands.',
+    ph:'Gulf oil headed for the Philippines passes through this strait and Singapore, then crosses the South China Sea.',
+    src:'Bloomberg via Rigzone (Oct 14); flow figure approximate, EIA'}
+  ];
+  var HUB=[
+   {id:'bataan',n:'Bataan refinery',kind:'Philippine refinery',lon:120.55,lat:14.55,r:4,st:'watch',stl:'October supply secure',major:1,a:'w',lod:.2,
+    txt:'The Petron refinery in Limay is the country’s only operating crude oil refinery. The DOE says October fuel supply is secure and it is checking if more diesel and kerosene shipments are needed for November and December.',
+    ph:'This is where Middle East crude becomes Philippine fuel. The November and December check is the next supply test.',
+    src:'Top Gear PH (Oct 13); general background'},
+   {id:'batangas',n:'Batangas terminals',kind:'Fuel import terminals',lon:121.05,lat:13.75,r:3.6,st:'watch',stl:'Watching',a:'e',lod:.2,
+    txt:'A group of fuel import terminals south of Manila where ready-made fuel arrives from Singapore, South Korea and China.',
+    ph:'China stopped exporting refined fuel, which shrinks the supply these terminals can buy.',
+    src:'General background; Top Gear PH (Oct 13)'},
+   {id:'singapore',n:'Singapore',kind:'Refining and trading hub',lon:103.8,lat:1.3,r:3.8,st:'watch',stl:'Watching',major:1,a:'s',
+    txt:'Asia’s main oil refining and trading center, at the eastern end of the Strait of Malacca.',
+    ph:'Much of the ready-made fuel the Philippines buys on the open market is priced off Singapore.',
+    src:'General background'},
+   {id:'china',n:'China refiners',kind:'Fuel exporters',lon:121.8,lat:29.9,r:3.8,st:'elev',stl:'Exports stopped',major:1,a:'w',
+    txt:'China has stopped exporting refined fuel, including gasoline. The DOE says this is one reason supply stays tight and gas prices kept rising this week.',
+    ph:'Gas went up ₱1.56 a liter on Oct 13 while diesel went down ₱3.01.',
+    src:'Top Gear PH (Oct 13)'},
+   {id:'fujairah',n:'Fujairah',kind:'UAE port outside the strait',lon:56.4,lat:25.1,r:3.8,st:'elev',stl:'At risk',a:'s',lod:.3,
+    txt:'Ships piled up off Fujairah in early March when traffic through Hormuz stopped. A pipeline from inland UAE oil fields lets some oil skip the strait.',
+    src:'IDN Financials / Reuters (Feb 28); general background'},
+   {id:'dhahran',n:'Dhahran',kind:'Saudi Aramco base',lon:50.1,lat:26.3,r:4,st:'crit',stl:'Attacked Oct 14',a:'e',lod:.3,
+    txt:'A Houthi strike hit an Aramco office building in Dhahran on Wednesday and caused a small fire, according to Saudi Arabia’s energy ministry.',
+    ph:'Saudi oil is part of the Middle East supply Philippine buyers rely on.',
+    src:'Angel One; Bloomberg via Rigzone (Oct 14)'},
+   {id:'tanura',n:'Ras Tanura',kind:'Saudi oil port',lon:50.2,lat:26.7,r:3.6,st:'elev',stl:'At risk',a:'e',lod:.3,
+    txt:'Saudi Arabia’s main oil loading port on the Gulf. Ships must leave through Hormuz, so it is exposed to both attacks and shipping closures.',
+    src:'General background'},
+   {id:'kharg',n:'Kharg Island',kind:'Iran oil port',lon:50.3,lat:29.2,r:3.6,st:'elev',stl:'At risk',a:'e',lod:.3,
+    txt:'Iran’s main crude oil export port. The US announced a blockade of Iranian ports in April. Check the latest status, since the US and Iran signed an agreement afterwards.',
+    src:'Hydrocarbon Processing (April); general background'}
+  ];
+  var ROUTES=[
+   {n:'Gulf to Manila (illustrative)',dur:40,ships:5,ph:1,pts:[[50.2,26.6],[56.5,26.5],[61,22.5],[73,8],[80,5.2],[95,5.5],[100,3],[103.8,1.3],[108,4.5],[112,8],[115.5,11],[118.5,14],[120.5,14.5]]},
+   {n:'Gulf to North Asia (illustrative)',dur:34,ships:3,pts:[[56.5,26.5],[61,22.5],[73,8],[80,5.2],[95,5.5],[100,3],[103.8,1.3],[108,5],[115,13],[120,22],[121.8,29.9]]},
+   {n:'UAE pipeline bypass to Fujairah',dur:7,ships:1,bypass:1,pts:[[56.4,25.1],[57.2,24.6],[60,22.5]]}
+  ];
+
+  /* ---------- drawing ---------- */
+  var gR=document.getElementById('routes'), gH=document.getElementById('hubs'), gC=document.getElementById('chokes');
+  var routeEls=[], ptEls=[], shipEls=[];
+  ROUTES.forEach(function(r){
+    var q=r.pts.map(function(p){return P(p[0],p[1]);});
+    var d='M'+q[0][0].toFixed(1)+','+q[0][1].toFixed(1);
+    for(var i=1;i<q.length-1;i++){
+      var mx=(q[i][0]+q[i+1][0])/2,my=(q[i][1]+q[i+1][1])/2;
+      d+=' Q'+q[i][0].toFixed(1)+','+q[i][1].toFixed(1)+' '+mx.toFixed(1)+','+my.toFixed(1);
+    }
+    d+=' L'+q[q.length-1][0].toFixed(1)+','+q[q.length-1][1].toFixed(1);
+    var path=el('path',{d:d,'class':'route'+(r.bypass?' bypass':'')+(r.ph?' ph':''),'stroke-width':1.6},gR);
+    path._w=r.ph?3.4:2;
+    var t=el('title',{},path);t.textContent=r.n;
+    routeEls.push(path);
+    for(var s=0;s<r.ships;s++){
+      var c=el('circle',{r:2,'class':'ship'},gR);
+      el('animateMotion',{dur:r.dur+'s',repeatCount:'indefinite',path:d,begin:(-(r.dur*s/r.ships)).toFixed(1)+'s'},c);
+      shipEls.push(c);
+    }
+  });
+
+  var items={};
+  function addPt(it,group,isChoke){
+    var p=P(it.lon,it.lat);
+    var g=el('g',{'class':'pt '+it.st,tabindex:0,role:'button','aria-label':it.n+', '+it.stl,'data-id':it.id,transform:'translate('+p[0].toFixed(1)+','+p[1].toFixed(1)+')'},group);
+    if(it.st==='crit'&&isChoke){el('circle',{'class':'pulse',r:it.r*1.4,'stroke-width':1.2},g);}
+    el('circle',{'class':'dot',r:it.r,'stroke-width':1.2},g);
+    var tx=el('text',{'font-size':11,'stroke-width':3},g);
+    tx.textContent=it.n;
+    it._g=g;it._tx=tx;it._isChoke=isChoke;
+    g.addEventListener('click',function(){select(it.id);});
+    g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();select(it.id);}});
+    items[it.id]=it;ptEls.push(it);
+  }
+  HUB.forEach(function(h){addPt(h,gH,false);});
+  CH.forEach(function(c){addPt(c,gC,true);});
+
+  /* ---------- zoom ---------- */
+  var VIEWS={supply:[560,95,343,130],gulf:[622,130,68,26],ph:[791,161,95,36],world:[0,0,1000,380]};
+  var svg=document.getElementById('map'), cur=VIEWS.supply.slice(), k=1;
+  function scaleAll(){
+    k=cur[2]/1000;
+    var kr=Math.pow(k,.72), kt=Math.pow(k,.85);
+    routeEls.forEach(function(r){r.setAttribute('stroke-width',(r._w*k).toFixed(3));});
+    landEls.forEach(function(l){l.setAttribute('stroke-width',(.6*Math.max(k,.2)).toFixed(3));});
+    shipEls.forEach(function(s){s.setAttribute('r',(2.4*kr).toFixed(3));});
+    ptEls.forEach(function(it){
+      var rr=it.r*kr;
+      var dot=it._g.querySelector('.dot');
+      dot.setAttribute('r',rr.toFixed(2));
+      dot.setAttribute('stroke-width',(1.6*k).toFixed(2));
+      var pu=it._g.querySelector('.pulse'); if(pu){pu.setAttribute('r',(it.r*1.4*kr).toFixed(2));pu.setAttribute('stroke-width',(1.4*k).toFixed(2));}
+      var fs=(it._isChoke?13:11.5)*kt;
+      it._tx.setAttribute('font-size',fs.toFixed(2));
+      it._tx.setAttribute('stroke-width',(3.5*kt).toFixed(2));
+      var off=rr+3*kt, a=it.a||'e', anchor=(a==='w')?'end':'start';
+      if(a==='s'){it._tx.setAttribute('x',0);it._tx.setAttribute('y',(rr+fs+1*kt).toFixed(2));it._tx.setAttribute('text-anchor','middle');}
+      else{it._tx.setAttribute('y',(fs*.35).toFixed(2));it._tx.setAttribute('x',(anchor==='end'?-off:off).toFixed(2));it._tx.setAttribute('text-anchor',anchor);}
+      var show=it._isChoke||it.major||k<=(it.lod||.3);
+      it._tx.style.display=show?'':'none';
+    });
+  }
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var raf=0;
+  function go(name){
+    var to=VIEWS[name], from=cur.slice(), t0=null, dur=reduce?0:480;
+    cancelAnimationFrame(raf);
+    function step(ts){
+      if(t0===null)t0=ts;
+      var u=dur?Math.min(1,(ts-t0)/dur):1, e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+      for(var i=0;i<4;i++)cur[i]=from[i]+(to[i]-from[i])*e;
+      svg.setAttribute('viewBox',cur.map(function(n){return n.toFixed(2);}).join(' '));
+      scaleAll();
+      if(u<1)raf=requestAnimationFrame(step);
+    }
+    raf=requestAnimationFrame(step);
+  }
+  document.getElementById('views').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    [].forEach.call(this.querySelectorAll('button'),function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});
+    go(b.getAttribute('data-v'));
+  });
+  var layerEl={routes:gR,chokes:gC,hubs:gH};
+  document.getElementById('layers').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    var on=b.getAttribute('aria-pressed')!=='true';
+    b.setAttribute('aria-pressed',on?'true':'false');
+    layerEl[b.getAttribute('data-l')].classList.toggle('off',!on);
+  });
+
+  /* ---------- readout panel ---------- */
+  var panel=document.getElementById('panel');
+  var ORDER=CH.concat(HUB);
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function select(id){
+    var it=items[id];
+    ptEls.forEach(function(x){x._g.classList.toggle('sel',x===it);});
+    var h='<div class="kind">'+esc(it.kind)+'</div><h2>'+esc(it.n)+'</h2><span class="pill '+it.st+'">'+esc(it.stl)+'</span>';
+    if(it.big)h+='<div class="bigno">'+esc(it.big)+'</div><div class="bigl">'+esc(it.bigl)+'</div>';
+    h+='<p>'+esc(it.txt)+'</p>';
+    if(it.ph)h+='<p class="ph"><b>What it means for the Philippines.</b> '+esc(it.ph)+'</p>';
+    h+='<div class="src">Source: '+esc(it.src)+'</div>';
+    h+='<div class="list" role="list" aria-label="All points">'+ORDER.map(function(o){
+      return '<button data-id="'+o.id+'"'+(o.id===id?' aria-current="true"':'')+'><span>'+esc(o.n)+'</span><span class="pill '+o.st+'" style="font-size:10.5px;padding:1px 7px">'+(o.st==='crit'?'Danger':o.st==='elev'?'At risk':'Watching')+'</span></button>';
+    }).join('')+'</div>';
+    panel.innerHTML=h;
+  }
+  panel.addEventListener('click',function(e){
+    var b=e.target.closest('.list button');if(!b)return;
+    select(b.getAttribute('data-id'));
+  });
+
+  scaleAll();
+  select('hormuz');
+
+  /* ---------- Earth at night (canvas background) ---------- */
+  var cv=document.getElementById('earth'), ctx=cv.getContext('2d');
+  var LON0=85, LAT0=18, D2R=Math.PI/180;
+  function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  var polys=LAND.map(function(p){return Array.isArray(p)?p:p.p;});
+  function inPoly(x,y,pg){var c=false;for(var i=0,j=pg.length-1;i<pg.length;j=i++){var xi=pg[i][0],yi=pg[i][1],xj=pg[j][0],yj=pg[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
+  function onLand(x,y){for(var i=0;i<polys.length;i++){if(inPoly(x,y,polys[i]))return true;}return false;}
+  /* [lon, lat, weight, 'o' for oil country] */
+  var CITIES=[
+   [139.7,35.7,10],[135.5,34.7,6],[136.9,35.2,4],[130.4,33.6,3],[127,37.5,8],[129,35.1,3],[116.4,39.9,8],[117.2,39.1,5],[121.5,31.2,9],[120.2,30.3,5],[118.8,32,5],[113.3,23.1,8],[114.1,22.5,8],[114.2,22.3,5],[104,30.7,5],[106.5,29.6,5],[114.3,30.6,5],[108.9,34.3,4],[113.6,34.7,4],[117,36.7,4],[120.3,36.1,4],[123.4,41.8,4],[126.6,45.7,3],[121.5,25,5],[120.6,24.1,3],[121,14.6,9],[123.9,10.3,3],[125.6,7.1,3],[100.5,13.8,7],[105.8,21,4],[106.7,10.8,6],[106.8,-6.2,9],[112.7,-7.3,4],[107.6,-6.9,4],[103.8,1.3,6],[101.7,3.1,5],[96.2,16.8,3],[90.4,23.8,8],[88.4,22.6,7],[77.2,28.6,10],[72.9,19.1,9],[77.6,13,6],[80.3,13.1,5],[78.5,17.4,5],[72.6,23,4],[73.9,18.5,4],[80.9,26.8,4],[85.1,25.6,3],[67,24.9,7],[74.3,31.5,6],[73,33.7,3],[69.2,34.5,3],[51.4,35.7,7],[46.3,38.1,3],[59.6,36.3,3],[44.4,33.3,5],[46.7,24.7,6],[39.2,21.5,4],[55.3,25.2,6],[58.4,23.6,3],[34.8,32.1,4],[36.3,33.5,3],[29,41,7],[32.9,39.9,4],[27.1,38.4,3],[31.2,30,8],[37.6,55.8,8],[30.3,59.9,5],[30.5,50.4,4],[44,56.3,2],[60.6,56.8,2],[73.4,54.9,2],[82.9,55,3],
+   [-0.1,51.5,8],[2.3,48.9,8],[-3.7,40.4,5],[2.2,41.4,4],[13.4,52.5,6],[12.5,41.9,5],[9.2,45.5,5],[7,51.4,6],[4.5,52,6],[21,52.2,4],[16.4,48.2,3],[23.7,38,3],[19,47.5,3],[26.1,44.4,3],[-9.1,38.7,3],[-6.3,53.3,2],[18,59.3,3],[10.7,59.9,2],[24.9,60.2,2],
+   [3.4,6.5,6],[36.8,-1.3,4],[38.7,9,3],[28,-26.2,6],[18.4,-33.9,3],[32.5,15.6,3],[3,36.8,4],[-7.6,33.6,3],[15.3,-4.3,4],[39.3,-6.8,3],[-0.2,5.6,3],[31,-29.9,2],[-17.4,14.7,2],
+   [151.2,-33.9,5],[145,-37.8,4],[153,-27.5,3],[115.9,-32,2],
+   [50.1,26.3,3,'o'],[49.7,27,2,'o'],[49.5,25.4,2,'o'],[47.9,29.4,4,'o'],[47.8,30.5,3,'o'],[49.3,30.3,2,'o'],[50.3,29.2,2,'o'],[52.5,27.5,2,'o'],[51.5,25.3,3,'o'],[54.4,24.5,3,'o'],[56.4,25.1,2,'o'],[44.4,35.5,2,'o'],[75,61,2,'o'],[69,61,2,'o'],[53,51,1,'o']
+  ];
+  /* [lon, lat, half-width, half-height, count, 'o'] */
+  var REGIONS=[[115,32,7,6,320],[82,26,8,3,260],[8,49,12,6,300],[136,36,4,4,150],[110,-7,5,1.6,130],[121,15,1.3,2.2,70],[31,29,.9,3,90],[50,27,3,3,110,'o'],[32,39,4,2,50],[150,-30,2,4,50],[100,14,2,3,80],[107,11,2,3,70],[72,20,2,3,70],[78,14,3,3,90],[127,37,1.5,1.5,60],[104,31,3,2,60],[37,55,4,3,80],[-1,52,3,2,80],[2,47,3,3,80],[12,44,2,2,70],[67,26,2,3,60]];
+  var pts=null;
+  function buildPoints(){
+    var rand=rng(11), out=[];
+    function gauss(){var u=rand()||1e-6,v=rand();return Math.sqrt(-2*Math.log(u))*Math.cos(6.2832*v);}
+    function push(lo,la,big,oil){out.push({lon:lo,lat:la,s:big?1.9:1.1,a:.28+rand()*.72,o:oil});}
+    CITIES.forEach(function(c){
+      var n=Math.round(c[2]*20), sig=.3+c[2]*.07, oil=c[3]==='o';
+      for(var i=0;i<n;i++){
+        var lo=c[0]+gauss()*sig/Math.max(.35,Math.cos(c[1]*D2R)), la=c[1]+gauss()*sig*.8;
+        if(!onLand(lo,la)&&rand()>.22)continue;
+        push(lo,la,rand()<.1+c[2]*.012,oil);
+      }
+    });
+    REGIONS.forEach(function(r){
+      var oil=r[5]==='o';
+      for(var i=0;i<r[4];i++){
+        var ang=rand()*6.2832, rad=Math.sqrt(rand());
+        var lo=r[0]+Math.cos(ang)*rad*r[2], la=r[1]+Math.sin(ang)*rad*r[3];
+        if(!onLand(lo,la))continue;
+        push(lo,la,false,oil);
+      }
+    });
+    return out;
+  }
+  function proj(lo,la){
+    var l=(lo-LON0)*D2R,f=la*D2R,f0=LAT0*D2R;
+    var c=Math.sin(f0)*Math.sin(f)+Math.cos(f0)*Math.cos(f)*Math.cos(l);
+    var x=Math.cos(f)*Math.sin(l), y=Math.cos(f0)*Math.sin(f)-Math.sin(f0)*Math.cos(f)*Math.cos(l);
+    return [x,y,c];
+  }
+  var lastW=0,lastH=0;
+  function drawEarth(){
+    var dpr=Math.min(window.devicePixelRatio||1,2), vw=window.innerWidth, vh=window.innerHeight;
+    lastW=vw;lastH=vh;
+    cv.width=Math.round(vw*dpr);cv.height=Math.round(vh*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    var R=Math.min(vw*.5,vh*.5), cx=vw/2, cy=vh*.5;
+    if(vw<700){R=vw*.52;cy=vh*.42;}
+    var g,i;
+    ctx.globalCompositeOperation='source-over';
+    ctx.fillStyle='#02060a';ctx.fillRect(0,0,vw,vh);
+    g=ctx.createRadialGradient(cx,cy,R*.9,cx,cy,Math.max(vw,vh));
+    g.addColorStop(0,'rgba(20,50,90,.38)');g.addColorStop(.5,'rgba(8,20,40,.12)');g.addColorStop(1,'rgba(2,6,10,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,vw,vh);
+    /* stars */
+    var sr=rng(5);
+    for(i=0;i<260;i++){
+      var sx=sr()*vw, sy=sr()*vh, sa=.15+sr()*.6, ss=sr()<.08?1.6:.9;
+      var dd=Math.hypot(sx-cx,sy-cy); if(dd<R*1.04)continue;
+      ctx.fillStyle='rgba(210,230,255,'+sa.toFixed(2)+')';ctx.fillRect(sx,sy,ss,ss);
+    }
+    /* atmosphere glow */
+    g=ctx.createRadialGradient(cx,cy,R*.97,cx,cy,R*1.16);
+    g.addColorStop(0,'rgba(100,180,255,.6)');g.addColorStop(.3,'rgba(60,140,255,.24)');g.addColorStop(1,'rgba(40,100,255,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,R*1.16,0,6.2832);ctx.fill();
+    /* sphere */
+    ctx.save();ctx.beginPath();ctx.arc(cx,cy,R,0,6.2832);ctx.clip();
+    g=ctx.createRadialGradient(cx-R*.25,cy-R*.3,R*.1,cx,cy,R);
+    g.addColorStop(0,'#0b1c2c');g.addColorStop(1,'#040b13');
+    ctx.fillStyle=g;ctx.fillRect(cx-R,cy-R,R*2,R*2);
+    /* land */
+    ctx.lineWidth=.8;ctx.strokeStyle='rgba(120,190,255,.16)';ctx.fillStyle='rgba(16,40,58,.75)';
+    polys.forEach(function(pg){
+      ctx.beginPath();
+      var any=false;
+      pg.forEach(function(p,idx){
+        var q=proj(p[0],p[1]),x=q[0],y=q[1];
+        if(q[2]<0){var m=Math.hypot(x,y)||1;x/=m;y/=m;}else any=true;
+        var X=cx+R*x,Y=cy-R*y;
+        if(idx===0)ctx.moveTo(X,Y);else ctx.lineTo(X,Y);
+      });
+      ctx.closePath();
+      if(any){ctx.fill();ctx.stroke();}
+    });
+    /* lights */
+    if(!pts)pts=buildPoints();
+    ctx.globalCompositeOperation='lighter';
+    var sc=R/430;
+    pts.forEach(function(p){
+      var q=proj(p.lon,p.lat);
+      if(q[2]<.03)return;
+      var al=p.a*Math.pow(q[2],.5);
+      var X=cx+R*q[0],Y=cy-R*q[1], s=p.s*sc*1.25;
+      if(s<.8)s=.8;
+      if(p.o){
+        ctx.fillStyle='rgba(255,150,40,'+(al*1.1).toFixed(2)+')';
+        ctx.fillRect(X-s/2,Y-s/2,s*1.2,s*1.2);
+        if(p.s>1.5){ctx.fillStyle='rgba(255,140,30,'+(al*.22).toFixed(3)+')';ctx.fillRect(X-s*1.6,Y-s*1.6,s*3.2,s*3.2);}
+      }else{
+        ctx.fillStyle='rgba(255,226,150,'+al.toFixed(2)+')';
+        ctx.fillRect(X-s/2,Y-s/2,s,s);
+        if(p.s>1.5){ctx.fillStyle='rgba(255,210,120,'+(al*.16).toFixed(3)+')';ctx.fillRect(X-s*1.7,Y-s*1.7,s*3.4,s*3.4);}
+      }
+    });
+    /* soft glow over big cities */
+    CITIES.forEach(function(c){
+      if(c[2]<5)return;
+      var q=proj(c[0],c[1]); if(q[2]<.05)return;
+      var X=cx+R*q[0],Y=cy-R*q[1], rr=R*(.014+c[2]*.0028)*Math.pow(q[2],.5);
+      var oil=c[3]==='o';
+      var gg=ctx.createRadialGradient(X,Y,0,X,Y,rr);
+      gg.addColorStop(0,oil?'rgba(255,140,40,.28)':'rgba(255,215,130,.24)');gg.addColorStop(1,'rgba(255,200,100,0)');
+      ctx.fillStyle=gg;ctx.fillRect(X-rr,Y-rr,rr*2,rr*2);
+    });
+    ctx.globalCompositeOperation='source-over';
+    /* limb darkening */
+    g=ctx.createRadialGradient(cx,cy,R*.55,cx,cy,R);
+    g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,4,10,.62)');
+    ctx.fillStyle=g;ctx.fillRect(cx-R,cy-R,R*2,R*2);
+    ctx.restore();
+    /* rim light */
+    ctx.lineWidth=1.2;ctx.strokeStyle='rgba(140,200,255,.35)';
+    ctx.beginPath();ctx.arc(cx,cy,R,0,6.2832);ctx.stroke();
+  }
+  drawEarth();
+  var rt=0;
+  window.addEventListener('resize',function(){
+    clearTimeout(rt);
+    rt=setTimeout(function(){
+      if(window.innerWidth!==lastW||Math.abs(window.innerHeight-lastH)>window.innerHeight*.15)drawEarth();
+    },200);
+  });
+})();
+</script>
+
+</body></html>
